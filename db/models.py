@@ -1,4 +1,4 @@
-from sqlalchemy import Column, Integer, String, Text, DateTime
+ from sqlalchemy import Column, Integer, String, Text, DateTime
 from sqlalchemy.ext.declarative import declarative_base
 from datetime import datetime
 
@@ -13,7 +13,6 @@ class User(Base):
     city = Column(String(128))
     last_active = Column(DateTime, default=datetime.utcnow)
     memory = Column(Text)
-    
-    xp = Column(Integer, default=0)             # опыт
-    level = Column(Integer, default=1)          # уровень
-    avatar_url = Column(String(512), nullable=True)  # ссылка на аватар
+    xp = Column(Integer, default=0)
+    level = Column(Integer, default=1)
+    avatar_url = Column(String(512), nullable=True)
