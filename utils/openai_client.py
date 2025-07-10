@@ -1,12 +1,15 @@
+import os
+import openai
+
+openai.api_key = os.getenv("OPENAI_API_KEY")
+
 def ask_gpt(message: str, memory: str = "") -> str:
     try:
         messages = [
-            {"role": "system", "content": "Ты умный AI-ассистент. Помни контекст беседы."},
+            {"role": "system", "content": "Ты дружелюбный AI-ассистент. Помни контекст диалога."},
         ]
-
         if memory:
-            messages.append({"role": "user", "content": f"Вот история: {memory}"})
-
+            messages.append({"role": "user", "content": f"История: {memory}"})
         messages.append({"role": "user", "content": message})
 
         response = openai.chat.completions.create(
@@ -16,5 +19,4 @@ def ask_gpt(message: str, memory: str = "") -> str:
         )
         return response.choices[0].message.content.strip()
     except Exception as e:
-        return f"Ошибка: {e}"
-
+        return f"Ошибка OpenAI: {e}"
