@@ -1,33 +1,35 @@
 from telegram import Update
 from telegram.ext import ContextTypes
-from utils.openai_client import ask_gpt
-from db.models import User
 from db.session import SessionLocal
+from db.models import User
+from utils.openai_client import ask_gpt
 from datetime import datetime
 
 async def handle_text(update: Update, context: ContextTypes.DEFAULT_TYPE):
     user_id = update.effective_user.id
     user_name = update.effective_user.first_name
-    user_message = update.message.text
-
+    message = update.message.text
     db = SessionLocal()
 
     user = db.query(User).filter_by(telegram_id=user_id).first()
-
     if not user:
         user = User(telegram_id=user_id, name=user_name, memory="")
         db.add(user)
         db.commit()
 
-        await update.message.reply_text(f"Привет, {user_name}! Я запомню тебя.")
-    else:
-        await update.message.reply_text(f"Снова привет, {user.name}!")
+    # Обработка смены города
+    if context.user_data.get("change_city"):
+        user.city = message
+        db.commit()
+        context.user_data["change_city"] = False
+        await update.message.reply_text(f"🌍 Город обновлён на: {message}")
+        return
 
-    # Добавим сообщение к памяти (упрощённо)
-    new_memory = (user.memory or "") + f"\nUser: {user_message}"
-    user.memory = new_memory[-1000:]  # ограничим длину памяти
+    # Продолжение диалога с GPT
+    user.memory = (user.memory or "") + f"\nUser: {message}"
+    user.memory = user.memory[-1000:]
     user.last_active = datetime.utcnow()
     db.commit()
 
-    reply = ask_gpt(user_message, user.memory)
+    reply = ask_gpt(message, user.memory)
     await update.message.reply_text(reply)
