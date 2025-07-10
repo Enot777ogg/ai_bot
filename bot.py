@@ -3,6 +3,8 @@ from telegram.ext import Application, CommandHandler, MessageHandler, filters
 from handlers.menu_handler import start, handle_menu_choice
 from handlers.text_handler import handle_text
 from db.session import init_db
+from dotenv import load_dotenv
+load_dotenv()
 
 # Загрузи токен
 BOT_TOKEN = os.getenv("BOT_TOKEN")  # добавь в .env или в Termux вручную
